@@ -35,6 +35,7 @@ class VGGBlock(nn.Module):
         return out
 
 
+#middle_channels作为中间通道参数在双层卷积过程中始终与output_channels保持一致，没有意义，可被替代
 # Unet
 class UNet(nn.Module):
     def __init__(self, num_classes, input_channels=3, deep_supervision=False):
