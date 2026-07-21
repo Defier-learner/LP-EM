@@ -23,7 +23,7 @@ class BCEDiceLoss(nn.Module):
         super().__init__()
 
     def forward(self, input, target):
-        bce = F.binary_cross_entropy_with_logits(input, target)
+        bce = F.binary_cross_entropy_with_logits(input, target)#针对于二分类问题的交叉熵，CrossEntropyLoss用于多分类概率的交叉熵
         smooth = 1e-5
         input = torch.sigmoid(input)
         num = target.size(0)
