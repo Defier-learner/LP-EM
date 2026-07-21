@@ -64,9 +64,10 @@ def parse_args():  # 初始化相关参数
     # optimizer（定义优化器）
     parser.add_argument('--optimizer', default='SGD',
                         choices=['Adam', 'SGD'],
-                        help='loss: ' +
+                        help='optimizer: ' +
                              ' | '.join(['Adam', 'SGD']) +
                              ' (default: Adam)')  # 默认使用梯度下降法（SGD）
+    #修正了提示命令的笔误
     parser.add_argument('--lr', '--learning_rate', default=1e-3, type=float,
                         metavar='LR', help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float,
