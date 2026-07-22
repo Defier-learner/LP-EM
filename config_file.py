@@ -20,7 +20,7 @@ LOSS_NAMES.append('BCEWithLogitsLoss')
 --arch UNet
 """
 
-
+#相当于创建可变变量，为后续训练参数提供选择余地
 def parse_args():  # 初始化相关参数
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', default=None,
@@ -35,7 +35,7 @@ def parse_args():  # 初始化相关参数
                         choices=ARCH_NAMES,
                         help='model architecture: ' +
                              ' | '.join(ARCH_NAMES) +
-                             ' (default: NestedUNet)')  # 使用的神经网络（该程序使用网络为Unet）
+                             ' (default: NestedUNet)')  # 使用的神经网络（该程序使用网络为Unet，当前默认为Unet++）
     parser.add_argument('--deep_supervision', default=False, type=str2bool)
     parser.add_argument('--input_channels', default=5, type=int,
                         help='input channels')  # 通道数（图像维度，BGR三通道）
