@@ -63,6 +63,7 @@ def support(config):
     # print('hell')
     model = model.cuda()
     params = filter(lambda p: p.requires_grad, model.parameters())
+    #在Conv/BN的过程中已经自动创建了参数，model.parameters的作用是自动收集这些参数，filter则是过滤出可以学习计算梯度的参数
 
     # 定义优化器（该代码使用SGD）
     if config['optimizer'] == 'Adam':
