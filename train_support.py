@@ -221,7 +221,7 @@ def validate(config, val_loader, model, criterion):  # 验证函数
                 iou = iou_score(output, target)
 
             avg_meters['loss'].update(loss.item(), input.size(0))
-            avg_meters['iou'].update(iou, input.size(0))
+            avg_meters['iou'].update(iou, input.size(0))#为了统一，对于train过程，不整除batch的部分被扔掉，直接计入平均损失也可以，但对valid部分，没有扔掉，不同batch可能数目不一致，直接计入平均会导致总平均时数目无法计算
 
             postfix = OrderedDict([
                 ('loss', avg_meters['loss'].avg),
