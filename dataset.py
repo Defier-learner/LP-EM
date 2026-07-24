@@ -77,9 +77,11 @@ class Dataset(torch.utils.data.Dataset):
             else:
                 img_path = os.path.join(self.img_dir, img_id + self.img_ext)
                 img = cv2.imread(img_path)
+        #取邻域图，尽管是按通道数取出的领域图，但取图时是取得完整通道
 
             mask = []
-            mask_path = os.path.join(self.mask_dir, '0', img_id[0:5] + str(img_number_new) + self.img_ext)
+            mask_path = os.path.join(self.mask_dir, '0', img_id[0:5] + str(img_number_new) + self.mask_ext)#修改了原扩展名格式笔误，尽管不影响程序运行
+            #‘0’是因为二分类问题直接写死，实际应根据目录分类数进行确定
             if os.path.exists(mask_path):
                 mask.append(cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)[..., None])
             else:
