@@ -87,7 +87,7 @@ class Dataset(torch.utils.data.Dataset):
             else:
                 mask_path = os.path.join(self.mask_dir, '0', img_id + self.mask_ext)
                 mask.append(cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)[..., None])
-            mask = mask[0]
+            mask = mask[0]#代码冗余，不用先放进去再取出来
 
             if self.transform is not None:
                 augmented = self.transform(image=img, mask=mask)
