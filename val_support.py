@@ -66,6 +66,7 @@ def support(image_path):
         if os.path.isfile(file_path):  # 用于判断某一对象(需提供绝对路径)是否为文件
             shutil.copy(file_path, 'predict/dataTEM/images')
             shutil.copy(file_path, 'predict/dataTEM/masks/0')
+            #把原始图片放到mask里，是为了允许计算dice_loss，尽管该loss没有意义，但目的是得到预测图
 
     args = parse_args()  # 设置默认参数
 
@@ -124,6 +125,7 @@ def support(image_path):
             else:
                 output = model(input)
             iou = iou_score(output, target)
+            #用来生成可视化报告？？？？？？
             avg_meter.update(iou, input.size(0))
             output = torch.sigmoid(output).cpu().numpy()
             for i in range(len(output)):
