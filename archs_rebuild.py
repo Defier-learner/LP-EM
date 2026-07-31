@@ -157,5 +157,72 @@ class NestedUnet(nn.Module):
 
 
 #对应的，使用封装写法简化
+class NestedUnet(nn.Module):
+    def __init__(self,num_classes, input_channels=3, deep_supervision=False,**kwargs):
+        super().__init__()
+        nb_filter = [32, 64, 128, 256, 512]
+        self.deep_sepervision=deep_supervision
 
+        #原始Unet下采样
+        self.conv0_0=DoubleConv(input_channels, nb_filter[0])
+        self.conv1_0=DownSample(nb_filter[0], nb_filter[1])
+        self.conv2_0=DownSample(nb_filter[1], nb_filter[2]) 
+        self.conv3_0=DownSample(nb_filter[2], nb_filter[3])
+        self.conv4_0=DownSample(nb_filter[3], nb_filter[4])
+
+        #每个下采样的第一层卷积
+        self.conv0_1=UpSample(nb_filter[0]+nb_filter[1], nb_filter[0])
+        self.conv1_1=UpSample(nb_filter[1]+nb_filter[2], nb_filter[1])   
+        self.conv2_1=UpSample(nb_filter[2]+nb_filter[3], nb_filter[2])
+        self.conv3_1=UpSample(nb_filter[3]+nb_filter[4], nb_filter[3])
+
+        #每个下采样的第二层卷积
+        self.conv0_2=UpSample(nb_filter[0]*2+nb_filter[1], nb_filter[0])
+        self.conv1_2=UpSample(nb_filter[1]*2+nb_filter[2], nb_filter[1])
+        self.conv2_2=UpSample(nb_filter[2]*2+nb_filter[3], nb_filter[2])
+
+        #每个下采样的第三层卷积 
+        self.conv0_3=UpSample(nb_filter[0]*3+nb_filter[1], nb_filter[0])
+        self.conv1_3=UpSample(nb_filter[1]*3+nb_filter[2], nb_filter[1])
+
+        #每个下采样的第四层卷积
+        self.conv0_4=UpSample(nb_filter[0]*4+nb_filter[1], nb_filter[0])
+
+        if self.deep_sepervision:   
+            self.final1=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
+            self.final2=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
+            self.final3=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
+            self.final4=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
+        else:
+            self.final=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
+
+    def forward(self, input):
+        x0_0=self.conv0_0(input)
+
+        x1_0=self.conv1_0(x0_0)
+        x0_1=self.conv0_1(x1_0, x0_0)
+
+        x2_0=self.conv2_0(x1_0)
+        x1_1=self.conv1_1(x2_0, x1_0)
+        x0_2=self.conv0_2(x1_1, torch.cat([x0_0, x0_1], 1))
+
+        x3_0=self.conv3_0(x2_0)
+        x2_1=self.conv2_1(x3_0, x2_0)
+        x1_2=self.conv1_2(x2_1, torch.cat([x1_0, x1_1], 1))
+        x0_3=self.conv0_3(x1_2, torch.cat([x0_0, x0_1, x0_2], 1))
+
+        x4_0=self.conv4_0(x3_0)
+        x3_1=self.conv3_1(x4_0, x3_0)
+        x2_2=self.conv2_2(x3_1, torch.cat([x2_0, x2_1], 1))
+        x1_3=self.conv1_3(x2_2, torch.cat([x1_0, x1_1, x1_2], 1))
+        x0_4=self.conv0_4(x1_3, torch.cat([x0_0, x0_1, x0_2, x0_3], 1))
+
+        if self.deep_sepervision: #考虑是否需要添加激活函数sigmoid  
+            output1=self.final1(x0_1)
+            output2=self.final2(x0_2)
+            output3=self.final3(x0_3)
+            output4=self.final4(x0_4)
+            return [output1, output2, output3, output4] 
+        else:   
+            return self.final(x0_4)
            
