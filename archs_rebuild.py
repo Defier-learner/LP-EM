@@ -1,7 +1,9 @@
 '''
 Architecture Rebuild
 for Unet, this file can be used
-for Unet++ and Unet3+, the code is not complete yet
+for Unet++, this file can be used
+  tips: the original Unet++ is not encapsulated, so I encapsulated it to make it easier to read and understand
+for Unet3+ or attention-based models or other Unet architectures, this file can be used
 '''
 
 import torch
@@ -86,7 +88,7 @@ class NestedUnet(nn.Module):
     def __init__(self,num_classes, input_channels=3, deep_supervision=False,**kwargs):
         super().__init__()
         nb_filter = [32, 64, 128, 256, 512]
-        self.deep_sepervision=deep_supervision
+        self.deep_supervision=deep_supervision
         self.pool=nn.MaxPool2d(2,2)
         self.up=nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
@@ -115,7 +117,7 @@ class NestedUnet(nn.Module):
         #每个下采样的第四层卷积
         self.conv0_4=DoubleConv(nb_filter[0]*4+nb_filter[1], nb_filter[0])
 
-        if self.deep_sepervision:   
+        if self.deep_supervision:   
             self.final1=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
             self.final2=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
             self.final3=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
@@ -144,7 +146,7 @@ class NestedUnet(nn.Module):
         x1_3=self.conv1_3(torch.cat([x1_0, x1_1, x1_2, self.up(x2_2)], 1))  
         x0_4=self.conv0_4(torch.cat([x0_0, x0_1, x0_2, x0_3, self.up(x1_3)], 1))
 
-        if self.deep_sepervision: #考虑是否需要添加激活函数sigmoid  
+        if self.deep_supervision: #考虑是否需要添加激活函数sigmoid  
             output1=self.final1(x0_1)
             output2=self.final2(x0_2)
             output3=self.final3(x0_3)
@@ -161,7 +163,7 @@ class NestedUnet(nn.Module):
     def __init__(self,num_classes, input_channels=3, deep_supervision=False,**kwargs):
         super().__init__()
         nb_filter = [32, 64, 128, 256, 512]
-        self.deep_sepervision=deep_supervision
+        self.deep_supervision=deep_supervision
 
         #原始Unet下采样
         self.conv0_0=DoubleConv(input_channels, nb_filter[0])
@@ -188,7 +190,7 @@ class NestedUnet(nn.Module):
         #每个下采样的第四层卷积
         self.conv0_4=UpSample(nb_filter[0]*4+nb_filter[1], nb_filter[0])
 
-        if self.deep_sepervision:   
+        if self.deep_supervision:   
             self.final1=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
             self.final2=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
             self.final3=nn.Conv2d(nb_filter[0], num_classes, kernel_size=1)
@@ -217,7 +219,7 @@ class NestedUnet(nn.Module):
         x1_3=self.conv1_3(x2_2, torch.cat([x1_0, x1_1, x1_2], 1))
         x0_4=self.conv0_4(x1_3, torch.cat([x0_0, x0_1, x0_2, x0_3], 1))
 
-        if self.deep_sepervision: #考虑是否需要添加激活函数sigmoid  
+        if self.deep_supervision: #考虑是否需要添加激活函数sigmoid  
             output1=self.final1(x0_1)
             output2=self.final2(x0_2)
             output3=self.final3(x0_3)
