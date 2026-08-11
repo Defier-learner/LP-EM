@@ -3,6 +3,9 @@ Aechitectures based on Unet which are not currently implemented in archs.py
 for Unet3+, this file can be used, but loss function should be carefully checked
 Concerning the special architecture of Unet3+, UpSample function has been revised and renamed as DecoderFusion 
 and a new class ScaleTransform has been added to handle the feature maps with different sizes in Unet3+.
+
+About loss function: the mixed loss function of BCE and Dice can be used,
+but other loss functions should also be concerned
 '''
 
 import torch
@@ -121,9 +124,18 @@ class Unet3plus(nn.Module):
 
         if deep_supervision:
             self.final1=nn.Conv2d(self.UpChannels, num_classes, kernel_size=1)
-            self.final2=nn.Conv2d(self.UpChannels, num_classes, kernel_size=1)
-            self.final3=nn.Conv2d(self.UpChannels, num_classes, kernel_size=1)
-            self.final4=nn.Conv2d(self.UpChannels, num_classes, kernel_size=1)
+            self.final2=nn.Sequential(
+                nn.Conv2d(self.UpChannels,num_classes, kernel_size=1),
+                nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+            )
+            self.final3=nn.Sequential(
+                nn.Conv2d(self.UpChannels,num_classes, kernel_size=1),
+                nn.Upsample(scale_factor=4, mode='bilinear', align_corners=True)
+            )
+            self.final4=nn. Sequential(
+                nn.Conv2d(self.UpChannels,num_classes, kernel_size=1),
+                nn.Upsample(scale_factor=8, mode='bilinear', align_corners=True)
+            )
         else:
             self.final=nn.Conv2d(self.UpChannels, num_classes, kernel_size=1)
 
@@ -176,6 +188,6 @@ class Unet3plus(nn.Module):
             output2=self.final2(d2)
             output3=self.final3(d3)
             output4=self.final4(d4)
-            return [output1, output2, output3, output4]
+            return [output1, output2, output3, output4]#输出前理应考虑加入激活函数
         else:
             return self.final(d1)
