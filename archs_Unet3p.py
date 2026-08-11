@@ -86,7 +86,7 @@ class Unet3plus(nn.Module):
         self.down4=DownSample(nb_filter[3], nb_filter[4])
 
         #Decoder
-        self.CatChannels=nb_filter[0]
+        self.CatChannels=nb_filter[0]#超参数，原始论文中使用64
         self.CatBlocks=5
         self.UpChannels=self.CatChannels*self.CatBlocks
 
