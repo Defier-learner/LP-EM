@@ -6,6 +6,8 @@ and a new class ScaleTransform has been added to handle the feature maps with di
 
 About loss function: the mixed loss function of BCE and Dice can be used,
 but other loss functions should also be concerned
+
+the model should be imported to the register of archs before it can be used in train.py, val.py and test.py
 '''
 
 import torch
@@ -46,7 +48,7 @@ class DecoderFusion(nn.Module):
     def __init__(self,in_channels,out_channels):
         super().__init__()
         self.model=nn.Sequential(
-            nn.Conv(in_channels, out_channels, kernel_size=3, padding=1,bias=False),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1,bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
