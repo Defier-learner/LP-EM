@@ -5,7 +5,8 @@ Unet: x->H(x)
 ResUnet: x->F(x)+x where F(x)=H(x)-x, thus F(x) represents the residual mapping to be learned.
 The maintaining of the identity mapping in ResUnet allows the network to learn more complex features.
 For example, the ibput image is composed of weak features and strong noises,
-the Unet will learn the strong noises and weak features together, while the ResUnet will learn the weak features and ignore the strong noises. 
+the Unet will learn the strong noises and weak features together, while the ResUnet will learn the weak features and ignore the strong noises，
+which avoids the loss of weak features during the convolution process.
 
 Similarly,the model should be imported to the register of archs before it can be used in train.py, val.py and test.py
 '''
